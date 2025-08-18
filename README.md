@@ -1,6 +1,6 @@
 # Frontity Builder
 
-Deploy your [Frontity](https://frontity.org) project to Vercel.
+Deploy your [Frontity](https://frontity.org) project to Vercel with Node 20.
 
 ## Before deploying
 
