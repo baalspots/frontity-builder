@@ -1,4 +1,4 @@
-# Frontity Vercel Builder
+# Frontity Builder
 
 Deploy your [Frontity](https://frontity.org) project to Vercel.
 

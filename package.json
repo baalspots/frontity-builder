@@ -1,10 +1,10 @@
 {
-  "name": "@baalspots/now",
-  "version": "2.2.0",
+  "name": "@baalspots/frontity-builder",
+  "version": "3.0.0",
   "description": "A custom Frontity builder for deploying to Vercel",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/baalspots/frontity-vercel-builder.git"
+    "url": "git+https://github.com/baalspots/frontity-builder.git"
   },
   "private": false,
   "publishConfig": {
@@ -20,9 +20,9 @@
   "author": "Baal & Spots",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/baalspots/frontity-vercel-builder/issues"
+    "url": "https://github.com/baalspots/frontity-builder/issues"
   },
-  "homepage": "https://github.com/baalspots/frontity-vercel-builder#readme",
+  "homepage": "https://github.com/baalspots/frontity-builder#readme",
   "files": [
     "dist"
   ],
