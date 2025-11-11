@@ -138,7 +138,7 @@ export async function build({
       cliType,
       lockfileVersion,
       packageJsonPackageManager,
-      env: process.env,
+      env: process.env || {},
       turboSupportsCorepackHome,
       projectCreatedAt: config.projectSettings?.createdAt,
     });
