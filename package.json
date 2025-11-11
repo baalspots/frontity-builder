@@ -1,6 +1,6 @@
 {
   "name": "@baalspots/frontity-builder",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "A custom Frontity builder for deploying to Vercel",
   "repository": {
     "type": "git",
