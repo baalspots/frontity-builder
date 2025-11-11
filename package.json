@@ -33,7 +33,7 @@
     "prepublishOnly": "tsc"
   },
   "peerDependencies": {
-    "@vercel/build-utils": "^7.4.1",
+    "@vercel/build-utils": "12.2.4",
     "@vercel/routing-utils": "^3.1.0"
   },
   "dependencies": {
@@ -44,7 +44,7 @@
     "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "@vercel/build-utils": "^7.4.1",
+    "@vercel/build-utils": "12.2.4",
     "@vercel/routing-utils": "^3.1.0",
     "eslint": "^8.56.0",
     "eslint-plugin-import": "^2.29.1",

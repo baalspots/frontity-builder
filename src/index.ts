@@ -90,7 +90,7 @@ export async function build({
   config,
   meta = {},
 }: BuildOptions): Promise<{ routes: object; output: Output }> {
-  console.log("Downloading user files...");
+  console.log("Downloading files...");
   await download(files, workPath, meta);
 
   const mountpoint = path.dirname(entrypoint);
