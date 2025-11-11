@@ -6,8 +6,8 @@ import {
   download,
   runNpmInstall,
   runPackageJsonScript,
-  getNodeVersion,
-  isBunVersion,
+  scanParentDirs,
+  getEnvForPackageManager,
   Lambda,
   BuildOptions,
   Config,
@@ -28,50 +28,6 @@ interface PackageJson {
 
 interface Output {
   [name: string]: FileFsRef | Lambda;
-}
-
-type RuntimeVersion = Awaited<ReturnType<typeof getNodeVersion>>;
-
-function createSpawnEnv(
-  meta: BuildOptions["meta"],
-  nodeVersion: RuntimeVersion
-): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env };
-
-  if (!nodeVersion || isBunVersion(nodeVersion) || meta?.isDev) {
-    return env;
-  }
-
-  const nodeMajor = nodeVersion.major;
-
-  if (!nodeMajor) {
-    return env;
-  }
-
-  const delimiter = path.delimiter;
-  const nodeBinPath = `/node${nodeMajor}/bin`;
-  const existingPath = env.PATH || process.env.PATH || "";
-  let replaced = false;
-
-  const pathSegments = existingPath
-    .split(delimiter)
-    .filter(Boolean)
-    .map((segment) => {
-      if (/^\/node[0-9]+\/bin/.test(segment)) {
-        replaced = true;
-        return nodeBinPath;
-      }
-
-      return segment;
-    });
-
-  if (!replaced) {
-    pathSegments.unshift(nodeBinPath);
-  }
-
-  env.PATH = pathSegments.join(delimiter);
-
-  return env;
 }
 
 function validateDistDir(
@@ -125,7 +81,7 @@ function getCommand(pkg: PackageJson, cmd: string): string {
   return `npx frontity ${cmd}`;
 }
 
-export const version = 2;
+export const version = 3;
 
 export async function build({
   files,
@@ -152,7 +108,7 @@ export async function build({
     const pkgPath = path.join(workPath, entrypoint);
     const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 
-    const minNodeRange: string | undefined = undefined;
+    // const minNodeRange: string | undefined = undefined;
 
     const prefix = mountpoint === "." ? "" : `/${mountpoint}`;
 
@@ -170,8 +126,22 @@ export async function build({
       },
     ];
 
-    const nodeVersion = await getNodeVersion(entrypointDir, minNodeRange);
-    const spawnEnv = createSpawnEnv(meta, nodeVersion);
+    // const nodeVersion = await getNodeVersion(entrypointDir, minNodeRange);
+    const {
+      cliType,
+      lockfileVersion,
+      packageJsonPackageManager,
+      turboSupportsCorepackHome,
+    } = await scanParentDirs(entrypointDir, true);
+
+    const spawnEnv = getEnvForPackageManager({
+      cliType,
+      lockfileVersion,
+      packageJsonPackageManager,
+      env: process.env,
+      turboSupportsCorepackHome,
+      projectCreatedAt: config.projectSettings?.createdAt,
+    });
 
     console.log("spawnEnv");
     console.log(spawnEnv);
