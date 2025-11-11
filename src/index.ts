@@ -6,8 +6,6 @@ import {
   download,
   runNpmInstall,
   runPackageJsonScript,
-  scanParentDirs,
-  getEnvForPackageManager,
   Lambda,
   BuildOptions,
   Config,
@@ -81,7 +79,7 @@ function getCommand(pkg: PackageJson, cmd: string): string {
   return `npx frontity ${cmd}`;
 }
 
-export const version = 3;
+export const version = 2;
 
 export async function build({
   files,
@@ -127,35 +125,32 @@ export async function build({
     ];
 
     // const nodeVersion = await getNodeVersion(entrypointDir, minNodeRange);
-    const {
-      cliType,
-      lockfileVersion,
-      packageJsonPackageManager,
-      turboSupportsCorepackHome,
-    } = await scanParentDirs(entrypointDir, true);
+    // const {
+    //   cliType,
+    //   lockfileVersion,
+    //   packageJsonPackageManager,
+    //   turboSupportsCorepackHome,
+    // } = await scanParentDirs(entrypointDir, true);
 
-    const spawnEnv = getEnvForPackageManager({
-      cliType,
-      lockfileVersion,
-      packageJsonPackageManager,
-      env: process.env || {},
-      turboSupportsCorepackHome,
-      projectCreatedAt: config.projectSettings?.createdAt,
-    });
+    // const spawnEnv = getEnvForPackageManager({
+    //   cliType,
+    //   lockfileVersion,
+    //   packageJsonPackageManager,
+    //   env: process.env || {},
+    //   turboSupportsCorepackHome,
+    //   projectCreatedAt: config.projectSettings?.createdAt,
+    // });
 
-    console.log("spawnEnv");
-    console.log(spawnEnv);
+    // console.log("spawnEnv");
+    // console.log(spawnEnv);
 
-    await runNpmInstall(entrypointDir, ["--prefer-offline"], {
-      env: spawnEnv,
-    });
+    await runNpmInstall(entrypointDir, ["--prefer-offline"]);
 
     const buildScript = getCommand(pkg, "build");
+
     console.log(`Running "${buildScript}" script in "${entrypoint}"`);
 
-    const found = await runPackageJsonScript(entrypointDir, buildScript, {
-      env: spawnEnv,
-    });
+    const found = await runPackageJsonScript(entrypointDir, buildScript);
 
     if (!found) {
       throw new Error(
