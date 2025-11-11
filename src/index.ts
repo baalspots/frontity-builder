@@ -7,7 +7,7 @@ import {
   runNpmInstall,
   runPackageJsonScript,
   getNodeVersion,
-  getSpawnOptions,
+  isBunVersion,
   Lambda,
   BuildOptions,
   Config,
@@ -28,6 +28,50 @@ interface PackageJson {
 
 interface Output {
   [name: string]: FileFsRef | Lambda;
+}
+
+type RuntimeVersion = Awaited<ReturnType<typeof getNodeVersion>>;
+
+function createSpawnEnv(
+  meta: BuildOptions["meta"],
+  nodeVersion: RuntimeVersion
+): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env };
+
+  if (!nodeVersion || isBunVersion(nodeVersion) || meta?.isDev) {
+    return env;
+  }
+
+  const nodeMajor = nodeVersion.major;
+
+  if (!nodeMajor) {
+    return env;
+  }
+
+  const delimiter = path.delimiter;
+  const nodeBinPath = `/node${nodeMajor}/bin`;
+  const existingPath = env.PATH || process.env.PATH || "";
+  let replaced = false;
+
+  const pathSegments = existingPath
+    .split(delimiter)
+    .filter(Boolean)
+    .map((segment) => {
+      if (/^\/node[0-9]+\/bin/.test(segment)) {
+        replaced = true;
+        return nodeBinPath;
+      }
+
+      return segment;
+    });
+
+  if (!replaced) {
+    pathSegments.unshift(nodeBinPath);
+  }
+
+  env.PATH = pathSegments.join(delimiter);
+
+  return env;
 }
 
 function validateDistDir(
@@ -127,18 +171,21 @@ export async function build({
     ];
 
     const nodeVersion = await getNodeVersion(entrypointDir, minNodeRange);
-    const spawnOpts = getSpawnOptions(meta, nodeVersion);
+    const spawnEnv = createSpawnEnv(meta, nodeVersion);
 
-    await runNpmInstall(entrypointDir, ["--prefer-offline"], spawnOpts);
+    console.log("spawnEnv");
+    console.log(spawnEnv);
+
+    await runNpmInstall(entrypointDir, ["--prefer-offline"], {
+      env: spawnEnv,
+    });
 
     const buildScript = getCommand(pkg, "build");
     console.log(`Running "${buildScript}" script in "${entrypoint}"`);
 
-    const found = await runPackageJsonScript(
-      entrypointDir,
-      buildScript,
-      spawnOpts
-    );
+    const found = await runPackageJsonScript(entrypointDir, buildScript, {
+      env: spawnEnv,
+    });
 
     if (!found) {
       throw new Error(
